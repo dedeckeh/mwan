@@ -1,0 +1,82 @@
+mwan - Multiwan scripts supporting policy based traffic forwarding
+
+** Abstract **
+
+mwan is a set of scripts triggered by interface hotplug events supporting
+policy based routing for both local sourced and forwarded traffic flows.
+
+** Features **
+
+Multiwan package provides an UCI configuration interface that abstracts
+iptables and ip rule systems to provide a simplified configuration model
+that fits for policy based routing.
+
+UCI Multiwan maps interfaces into policies; the configured interface
+identifies the rt_table parameter in the UCI network section which
+specifies the routing table to be used. Triggered by interface hotplug
+events a rule will be inserted in the routing policy database by means
+of the iproute2 utility for each policy.
+
+UCI Multiwan identifies traffic flows by means of rule and host sections.
+
+An UCI rule section contains traffic parameters and a reference to a policy.
+Traffic rules will translate into iptables rules in the mangle table; meaning
+a mark will be applied on the packet.
+
+An UCI host section contains an absolute appplication path and a reference to
+a policy. Host sections translate into a database file which is inspected by a
+preloader utility which wraps the socket call. In case of application match a
+mark is set via the socket mark option in the preloader utility.
+
+Based on the packet mark a routing table will be selected; depending on the
+traffic destination and the rules in the routing table the outgoing physical
+interface will be selected.
+
+** OpenWRT firmware integration **
+
+Multiwan can be integrated in OpenWRT as a package. The Makefile currenly puts
+under "Network" and the submenu "IP Addresses and Names" when doing make menuconfig.
+
+** Configuration **
+
+mwan uses /etc/config/mwan as UCI configuration file and requires by default
+a globals section
+
+Sections of type policy
+
+Option		Type	Default			Description
+interface	string	<name of UCI section>	Logical OpenWRT interface
+last_resort	string	unreachable		Action to be executed when no match
+		[unreachable|blackhole|continue] in the routing table
+
+
+Sections of type rule
+
+Option		Type	Default			Description
+src		string				Match logical OpenWrt interface as source
+src_ip		string				Match source IP address
+dest_ip		string				Match destination IP address
+proto		number				Match protocol
+		or name
+src_port	port or	range			Match source port or source port range
+dest_port	port or	range			Match destination port or destination
+						port range
+icmp_type	icmp type or number		Match icmp type
+string		string				String pattern to match against
+hex-string	string				Hexadecimal string to match against
+algo		string	bm			Name of matching algorithm to use
+		[bm|kmp]
+from_offset	number	0			Offset to start match search
+to_offset	number	65535			Offset to end match search
+icase		bool	0			Ignore case sensitive match
+policy		string	<name of UCI section>	Policy section
+
+Except for the parameters policy, icase, to_offset, from_offset, algo all other parameters
+can be preceded by the negation char '!'
+
+Sections of type host (static leases)
+Option		Type	Default			Description
+path		list				Match listed applications
+arg		string				Match on part of application's
+						command line argument
+policy		string	<name of UCI section>	Policy section
