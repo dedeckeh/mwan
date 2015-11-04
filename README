@@ -42,6 +42,7 @@ under "Network" and the submenu "IP Addresses and Names" when doing make menucon
 mwan uses /etc/config/mwan as UCI configuration file and requires by default
 a globals section
 
+
 Sections of type policy
 
 Option		Type	Default			Description
@@ -53,7 +54,8 @@ last_resort	string	unreachable		Action to be executed when no match
 Sections of type rule
 
 Option		Type	Default			Description
-src		string				Match logical OpenWrt interface as source
+src		string				Match logical OpenWrt interface
+						as source
 src_ip		string				Match source IP address
 dest_ip		string				Match destination IP address
 proto		number				Match protocol
@@ -71,8 +73,8 @@ to_offset	number	65535			Offset to end match search
 icase		bool	0			Ignore case sensitive match
 policy		string	<name of UCI section>	Policy section
 
-Except for the parameters policy, icase, to_offset, from_offset, algo all other parameters
-can be preceded by the negation char '!'
+Except for the parameters policy, icase, to_offset, from_offset, algo all other
+parameters can be preceded by the negation char '!'
 
 Sections of type host (static leases)
 Option		Type	Default			Description
